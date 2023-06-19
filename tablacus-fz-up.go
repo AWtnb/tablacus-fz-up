@@ -56,6 +56,9 @@ func getDirs(cur string, root string) []string {
 	elems := fromPath(cur)
 	var found []string
 	for i := 1; i < len(elems); i++ {
+		if i == len(elems)-1 {
+			return []string{}
+		}
 		p := toPath(elems[0 : len(elems)-i])
 		if p == root {
 			break

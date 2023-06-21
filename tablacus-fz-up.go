@@ -28,15 +28,13 @@ func run(c string, root string, filer string) int {
 	if len(found) < 1 {
 		return 0
 	}
-	b := getBase(c, root)
 	idx, err := fuzzyfinder.Find(found, func(i int) string {
-		rel, _ := filepath.Rel(b, found[i])
-		if len(rel) == 1 {
-			return "~"
-		}
-		return rel
+		return formatRel(root, found[i])
 	})
 	if err != nil {
+		if err == fuzzyfinder.ErrAbort {
+			return 0
+		}
 		return 1
 	}
 	src := found[idx]
@@ -71,11 +69,15 @@ func getDirs(cur string, root string) []string {
 	return found
 }
 
-func getBase(c string, root string) string {
-	elems := fromPath(c)
-	rd := fromPath(root)
-	if len(elems) < len(rd) {
-		return root
+func formatRel(root string, p string) string {
+	h := "~"
+	rel, err := filepath.Rel(root, p)
+	if err != nil {
+		return h
 	}
-	return toPath(elems[0 : len(rd)+1])
+	elems := fromPath(rel)
+	if 1 < len(elems) {
+		return h + string(os.PathSeparator) + toPath(elems[1:])
+	}
+	return h
 }

@@ -31,6 +31,9 @@ func run(c string, root string, filer string) int {
 	b := getBase(c, root)
 	idx, err := fuzzyfinder.Find(found, func(i int) string {
 		rel, _ := filepath.Rel(b, found[i])
+		if len(rel) == 1 {
+			return "~"
+		}
 		return rel
 	})
 	if err != nil {
